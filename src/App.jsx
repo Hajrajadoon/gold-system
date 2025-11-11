@@ -1,13 +1,4 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./components/ui/Dashboard";
-import WalletConnect from "./components/ui/WalletConnect";
-import Signup from "./pages/Signup";
-import Signin from "./pages/Signin";
-import NFTMint from "./pages/NFTMint";
-import InvestorDashboard from "./pages/InvestorDashboard";
-import Blog from "./components/ui/Blog";
-import GoldPrice from "./components/ui/GoldPrice";
+import IslamicSharia from "./components/ui/IslamicSharia";
 
 export default function App() {
   return (
@@ -21,6 +12,7 @@ export default function App() {
         {/* Real-Time Gold Price */}
         <GoldPrice />
 
+        {/* Dashboard routes */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
@@ -31,6 +23,9 @@ export default function App() {
 
         {/* Blogs */}
         <Blog />
+
+        {/* Islamic Sharia Guidance */}
+        <IslamicSharia />
       </div>
     </Router>
   );
