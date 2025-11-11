@@ -1,190 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GoldChain Demo</title>
-
-  <!-- React & ReactDOM UMD builds -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-
-  <style>
-    /* Minimal styles (keeps demo look neat) */
-    body { font-family: Arial, Helvetica, sans-serif; background:#f3f4f6; margin:0; padding:20px; color:#111827; }
-    .container { max-width:1100px; margin:0 auto; }
-    .header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
-    .brand { display:flex; gap:10px; align-items:center; }
-    .card { background:#fff; border-radius:10px; padding:16px; box-shadow:0 6px 18px rgba(15,23,42,0.06); }
-    .grid{display:grid;gap:16px}
-    .grid-3 { grid-template-columns: 1fr; }
-    @media(min-width:768px){ .grid-3{ grid-template-columns: repeat(3,1fr); } }
-    button{ cursor:pointer; border:0; padding:8px 12px; border-radius:8px; }
-    .btn-primary{ background:#f59e0b; color:#111827; }
-    .btn-ghost{ background:transparent; border:1px solid #e5e7eb; color:#111827; }
-    input{ padding:8px; border-radius:6px; border:1px solid #e5e7eb; width:100%; box-sizing:border-box; }
-    .mt{ margin-top:12px }
-    footer{ color:#6b7280; margin-top:20px; font-size:13px }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoldChain Demo</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@perawallet/connect/dist/index.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div id="root"></div>
+<body class="bg-gray-50">
+  <div id="root"></div>
+  <script type="text/javascript">
+    const { useState, useEffect } = React;
+    const peraWallet = new PeraWalletConnect.PeraWalletConnect();
 
-  <script>
-    /***************************************************************
-     * Single-file GoldChain Demo (React via CDN)
-     * - Replace BASE_URL below with your backend URL if available.
-     * - Deploy this single file on Netlify (no build) using Publish dir = /
-     ***************************************************************/
-    const BASE_URL = 'https://your-backend.example.com'; // <-- replace with real backend, optional
+    function App() {
+      const [account, setAccount] = useState(null);
+      const [optedIn, setOptedIn] = useState(false);
+      const [goldBalance, setGoldBalance] = useState(0);
+      const [transactions, setTransactions] = useState([]);
+      const [goldPrice, setGoldPrice] = useState(0);
+      const [user, setUser] = useState(null);
+      const ASA_ID = 12345678; // Placeholder, replace with real ASA ID
 
-    // Small helper to make JSON POSTs
-    async function apiPost(path, body, token) {
-      try {
-        const res = await fetch((BASE_URL || '') + path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
-          body: JSON.stringify(body)
-        });
-        const json = await res.json().catch(()=>({}));
-        if (!res.ok) throw new Error(json.message || res.statusText || 'Request failed');
-        return json;
-      } catch (e) { throw e; }
-    }
-    async function apiGet(path, token) {
-      try {
-        const res = await fetch((BASE_URL || '') + path, { headers: token ? { Authorization: 'Bearer ' + token } : {} });
-        const json = await res.json().catch(()=>({}));
-        if (!res.ok) throw new Error(json.message || res.statusText || 'Request failed');
-        return json;
-      } catch (e) { throw e; }
-    }
+      // Wallet connect
+      const connectWallet = async () => {
+        try {
+          const accounts = await peraWallet.connect();
+          setAccount(accounts[0]);
+          alert("Wallet connected: " + accounts[0]);
+        } catch (err) {
+          console.error(err);
+        }
+      };
 
-    const e = React.createElement;
+      const disconnectWallet = async () => {
+        peraWallet.disconnect();
+        setAccount(null);
+        setOptedIn(false);
+      };
 
-    // Lightweight hooks & utilities
-    function useGoldPrice() {
-      const [price, setPrice] = React.useState(null);
-      React.useEffect(()=>{
-        // try backend
-        apiGet('/api/gold/price').then(d=>{ if(d && d.price) setPrice(d.price); }).catch(()=>setPrice(2300));
-        const iv = setInterval(()=> setPrice(p => p ? +(p + (Math.random()*4 - 2)).toFixed(2) : 2300), 2500);
-        return ()=>clearInterval(iv);
-      },[]);
-      return price;
-    }
+      // Mock gold price
+      useEffect(() => {
+        setGoldPrice(65.23); // Example $/g
+      }, []);
 
-    // Pages/components
-    function Header({ onNav, token, signOut }) {
-      return e('div', { className: 'header container mt' },
-        e('div', { className: 'brand' }, e('div', { style:{background:'#f59e0b', width:44, height:44, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center'} }, '💰'), e('div', null, e('div', { style:{fontWeight:700} }, 'GoldChain'), e('div', { style:{fontSize:13, color:'#6b7280'} }, 'Hybrid gold tokenization'))),
-        e('nav', null,
-          e('button', { onClick: ()=>onNav('/'), className:'btn-ghost' }, 'Home'),
-          e('button', { onClick: ()=>onNav('/investor'), className:'btn-ghost' }, 'Investor'),
-          e('button', { onClick: ()=>onNav('/wallet'), className:'btn-ghost' }, 'Wallet'),
-          e('button', { onClick: ()=>onNav('/nft'), className:'btn-ghost' }, 'NFT'),
-          e('button', { onClick: ()=>onNav('/islamic'), className:'btn-ghost' }, 'Sharia'),
-          token ? e('button', { onClick: ()=>{ signOut(); }, className:'btn-ghost' }, 'Sign out') : e('button', { onClick: ()=>onNav('/signin'), className:'btn-primary' }, 'Sign in')
-        )
-      );
-    }
+      // Mock transactions
+      useEffect(() => {
+        setTransactions([
+          { id: 1, type: "NFT Mint", amount: "1g", date: "2025-11-11" },
+          { id: 2, type: "Gold Buy", amount: "5g", date: "2025-11-10" }
+        ]);
+      }, []);
 
-    function Home({ onNav }) {
-      const price = useGoldPrice();
-      return e('div', { className: 'container mt' },
-        e('div', { className: 'grid grid-3', style:{gap:16} },
-          e('div', { className: 'card' }, e('h3', { style:{fontWeight:700} }, 'Realtime Gold (1g)'), e('div', { style:{fontSize:28, marginTop:8} }, price ? '$' + price.toFixed(2) : '—')),
-          e('div', { className: 'card' }, e('h3',{style:{fontWeight:700}}, 'Wallet'), e('div','Connect wallet to view balances.'), e('button',{className:'btn-primary mt', onClick:()=>onNav('/wallet')}, 'Open Wallet')),
-          e('div', { className: 'card' }, e('h3',{style:{fontWeight:700}}, 'NFT Minting'), e('div','Mint tokenized gold as NFTs.'), e('button',{className:'btn-primary mt', onClick:()=>onNav('/nft')}, 'Mint NFT'))
-        ),
-        e('div', { className: 'card mt' }, e('h3',{style:{fontWeight:700}}, 'Sharia Compliance'), e('p','Asset-backed tokens, no riba, transparent terms.')),
-        e('div', { className: 'card mt' }, e('h3',{style:{fontWeight:700}}, 'Quick Actions'), e('div', { style:{display:'flex', gap:8, marginTop:8} }, e('button',{className:'btn-primary', onClick:()=>onNav('/signup')}, 'Sign up'), e('button',{className:'btn-ghost', onClick:()=>onNav('/signin')}, 'Sign in')))
-      );
-    }
+      // Mock opt-in
+      const optInASA = () => {
+        if (!account) return alert("Connect wallet first!");
+        setOptedIn(true);
+        alert("Opt-in successful for ASA " + ASA_ID);
+      };
 
-    function Signin({ onAuth }) {
-      const [email,setEmail]=React.useState(''),[pass,setPass]=React.useState(''),[err,setErr]=React.useState(null),[loading,setLoading]=React.useState(false);
-      async function submit(evt){ evt.preventDefault(); setLoading(true); setErr(null);
-        try {
-          const res = await apiPost('/api/auth/login', { email, password: pass });
-          if (res.token) { onAuth(res.token); } else setErr('Invalid response');
-        } catch (ex) { setErr(ex.message||'Sign in failed'); } finally { setLoading(false); }
-      }
-      return e('div', { className:'container mt' }, e('div',{className:'card', style:{maxWidth:520, margin:'0 auto'}}, e('h3',{style:{fontWeight:700}}, 'Sign in'), e('form',{onSubmit:submit},
-        e('div',{className:'mt'}, e('input',{placeholder:'Email', value:email, onInput: e=>setEmail(e.target.value)})),
-        e('div',{className:'mt'}, e('input',{placeholder:'Password', type:'password', value:pass, onInput: e=>setPass(e.target.value)})),
-        err ? e('div',{style:{color:'#ef4444', marginTop:8}}, err) : null,
-        e('div',{className:'mt'}, e('button',{className:'btn-primary', disabled:loading}, loading? 'Signing...' : 'Sign in'))
-      )));
-    }
+      // Mock NFT mint
+      const mintNFT = () => {
+        if (!account || !optedIn) return alert("Connect wallet and opt-in first!");
+        alert("NFT minted for " + account);
+        setTransactions(prev => [...prev, { id: prev.length+1, type:"NFT Mint", amount:"1g", date: new Date().toLocaleDateString() }]);
+      };
 
-    function Signup() {
-      const [name,setName]=React.useState(''),[email,setEmail]=React.useState(''),[pass,setPass]=React.useState(''),[msg,setMsg]=React.useState(null);
-      async function submit(e){ e.preventDefault(); setMsg(null);
-        try {
-          const res = await apiPost('/api/auth/signup', { name, email, password: pass });
-          setMsg(res.message || 'Account created, please sign in');
-        } catch (ex) { setMsg(ex.message || 'Signup failed'); }
-      }
-      return e('div',{className:'container mt'}, e('div',{className:'card', style:{maxWidth:520, margin:'0 auto'}}, e('h3',{style:{fontWeight:700}}, 'Create account'),
-        e('form', { onSubmit: submit },
-          e('div',{className:'mt'}, e('input',{placeholder:'Full name', value:name, onInput:e=>setName(e.target.value)})),
-          e('div',{className:'mt'}, e('input',{placeholder:'Email', value:email, onInput:e=>setEmail(e.target.value)})),
-          e('div',{className:'mt'}, e('input',{placeholder:'Password', type:'password', value:pass, onInput:e=>setPass(e.target.value)})),
-          msg ? e('div',{style:{color:'#059669', marginTop:8}}, msg) : null,
-          e('div',{className:'mt'}, e('button',{className:'btn-primary'}, 'Create account'))
-        )
-      ));
-    }
+      // Mock sign-up / login
+      const signup = () => {
+        const name = prompt("Enter name for Sign-up");
+        if (!name) return;
+        localStorage.setItem("user", name);
+        setUser(name);
+      };
+      const login = () => {
+        const stored = localStorage.getItem("user");
+        if (stored) setUser(stored);
+        else alert("No user found. Please sign up first.");
+      };
+      const logout = () => { localStorage.removeItem("user"); setUser(null); };
 
-    function Wallet({ token }) {
-      const [balance,setBal]=React.useState(null), [txs,setTxs]=React.useState([]);
-      React.useEffect(()=>{
-        if(!token) { setBal(500); setTxs([{id:1,type:'buy',amount:100,date:'2025-10-01'},{id:2,type:'sell',amount:20,date:'2025-10-15'}]); return; }
-        apiGet('/api/wallet', token).then(d=>{ setBal(d.balance); setTxs(d.transactions||[]); }).catch(()=>{ setBal(500);});
-      },[token]);
-      return e('div',{className:'container mt'}, e('div',{className:'grid', style:{gap:12}},
-        e('div',{className:'card'}, e('h3',{style:{fontWeight:700}}, 'Wallet Balance'), e('div', { style:{fontSize:20, marginTop:6} }, balance !== null ? balance + ' Gold' : '—' )),
-        e('div',{className:'card'}, e('h3',{style:{fontWeight:700}}, 'Transactions'), txs.map(t => e('div',{key:t.id, style:{padding:8, borderTop:'1px solid #f3f4f6'}}, e('div',{style:{fontSize:13,color:'#6b7280'}}, t.date), e('div', { style:{ fontWeight:600 }}, t.type + ' ' + t.amount + ' Gold' ))))
-      ));
-    }
+      return (
+        <div className="p-6 max-w-6xl mx-auto">
+          <header className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-yellow-600">GoldChain</h1>
+            <nav className="space-x-4">
+              {!user && <button onClick={signup} className="btn bg-green-500 px-3 py-1 text-white rounded">Sign Up</button>}
+              {!user && <button onClick={login} className="btn bg-blue-500 px-3 py-1 text-white rounded">Login</button>}
+              {user && <button onClick={logout} className="btn bg-red-500 px-3 py-1 text-white rounded">Logout</button>}
+            </nav>
+          </header>
 
-    function NFTMint({ token }) {
-      const [msg,setMsg]=React.useState(null),[loading,setLoading]=React.useState(false);
-      async function mint(){ setMsg(null); setLoading(true); try { const res = await apiPost('/api/nft/mint', { metadata:{ name:'Gold NFT', grams:1 } }, token); setMsg(res.id ? 'Minted: ' + res.id : (res.message || 'Minted')); } catch (ex) { setMsg(ex.message); } finally { setLoading(false); } }
-      return e('div',{className:'container mt'}, e('div',{className:'card'}, e('h3',{style:{fontWeight:700}}, 'Mint NFT'), e('div','Mint NFTs representing gold.'), e('div',{className:'mt'}, e('button',{className:'btn-primary', onClick:mint, disabled:loading}, loading ? 'Minting...' : 'Mint 1g NFT')), msg ? e('div',{style:{marginTop:8, color:'#059669'}}, msg) : null ));
-    }
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Connect Wallet</h2>
+            {!account ? (
+              <button onClick={connectWallet} className="bg-indigo-600 text-white px-4 py-2 rounded">Connect Pera Wallet</button>
+            ) : (
+              <div>
+                <p className="mb-2">Connected account: {account}</p>
+                {!optedIn ? (
+                  <button onClick={optInASA} className="bg-yellow-500 text-white px-4 py-2 rounded">Opt-in to Gold ASA</button>
+                ) : (
+                  <p className="text-green-600 font-semibold">Opt-in complete!</p>
+                )}
+                <button onClick={disconnectWallet} className="ml-4 bg-gray-500 text-white px-3 py-1 rounded">Disconnect</button>
+              </div>
+            )}
+          </section>
 
-    function Sharia() { return e('div',{className:'container mt'}, e('div',{className:'card'}, e('h3',{style:{fontWeight:700}}, 'Islamic Sharia Compliance'), e('p','No riba, transparency, asset-backed tokens.'))); }
-    function Investor() { return e('div',{className:'container mt'}, e('div',{className:'card'}, e('h3',{style:{fontWeight:700}}, 'Investor Dashboard'), e('p','Investor view, KYC and portfolio analytics (demo).'))); }
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-white rounded shadow">
+                <h3 className="font-semibold mb-2">Gold Balance</h3>
+                <p>{goldBalance} g</p>
+                <p>Gold Price: ${goldPrice}/g</p>
+              </div>
+              <div className="p-4 bg-white rounded shadow">
+                <h3 className="font-semibold mb-2">NFT Minting</h3>
+                <button onClick={mintNFT} className="bg-purple-600 text-white px-4 py-2 rounded">Mint 1g Gold NFT</button>
+              </div>
+            </div>
+          </section>
 
-    // Top-level app with basic hash routing
-    function App() {
-      const [route, setRoute] = React.useState(location.hash.replace('#','') || '/');
-      const [token, setToken] = React.useState(sessionStorage.getItem('goldchain_token') || null);
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Transaction History</h2>
+            <table className="min-w-full bg-white rounded shadow">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="px-4 py-2">ID</th>
+                  <th className="px-4 py-2">Type</th>
+                  <th className="px-4 py-2">Amount</th>
+                  <th className="px-4 py-2">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map(tx => (
+                  <tr key={tx.id} className="text-center border-t">
+                    <td className="px-4 py-2">{tx.id}</td>
+                    <td className="px-4 py-2">{tx.type}</td>
+                    <td className="px-4 py-2">{tx.amount}</td>
+                    <td className="px-4 py-2">{tx.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
 
-      React.useEffect(()=>{ function onHash(){ setRoute(location.hash.replace('#','') || '/'); } window.addEventListener('hashchange', onHash); return ()=>window.removeEventListener('hashchange', onHash); },[]);
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Blogs</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-white rounded shadow">
+                <h3 className="font-semibold mb-2">Blockchain & Gold</h3>
+                <p>How blockchain is revolutionizing gold trading worldwide.</p>
+              </div>
+              <div className="p-4 bg-white rounded shadow">
+                <h3 className="font-semibold mb-2">Sharia Compliance</h3>
+                <p>Understanding Islamic principles in digital gold assets.</p>
+              </div>
+              <div className="p-4 bg-white rounded shadow">
+                <h3 className="font-semibold mb-2">NFTs & Finance</h3>
+                <p>Minting NFTs backed by physical or digital gold.</p>
+              </div>
+            </div>
+          </section>
 
-      function nav(p){ location.hash = p; }
-      function onAuth(t){ setToken(t); sessionStorage.setItem('goldchain_token', t); nav('/'); }
-      function signOut(){ setToken(null); sessionStorage.removeItem('goldchain_token'); nav('/'); }
+          <footer className="text-center p-4 mt-8 bg-gray-100">
+            <p>© 2025 GoldChain. All rights reserved.</p>
+          </footer>
+        </div>
+      );
+    }
 
-      return e('div', null,
-        e(Header, { onNav: nav, token: token, signOut }),
-        route === '/' && e(Home, { onNav: nav }),
-        route === '/signin' && e(Signin, { onAuth }),
-        route === '/signup' && e(Signup, null),
-        route === '/wallet' && e(Wallet, { token }),
-        route === '/nft' && e(NFTMint, { token }),
-        route === '/islamic' && e(Sharia, null),
-        route === '/investor' && e(Investor, null),
-        e('footer', { className:'container' }, e('div', { style:{marginTop:18} }, '© ' + new Date().getFullYear() + ' GoldChain — Demo'))
-      );
-    }
-
-    // Render
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(e(App));
-  </script>
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
 </body>
 </html>
