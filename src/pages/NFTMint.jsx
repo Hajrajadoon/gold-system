@@ -2,10 +2,11 @@ import React from "react";
 
 export default function NFTMint() {
   return (
-    <div className="bg-white p-6 rounded shadow max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4">NFT Minting</h2>
-      <p>Mint your NFTs here. Placeholder for blockchain NFT minting functionality.</p>
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-2">NFT Minting</h2>
+      <button className="bg-yellow-500 text-black px-4 py-2 rounded mt-2">
+        Mint 1g Gold NFT
+      </button>
     </div>
   );
 }
-
