@@ -6,6 +6,8 @@ import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
 import NFTMint from "./pages/NFTMint";
 import InvestorDashboard from "./pages/InvestorDashboard";
+import Blog from "./components/ui/Blog";
+import GoldPrice from "./components/ui/GoldPrice";
 
 export default function App() {
   return (
@@ -16,6 +18,9 @@ export default function App() {
         {/* Wallet Connect */}
         <WalletConnect />
 
+        {/* Real-Time Gold Price */}
+        <GoldPrice />
+
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
@@ -23,8 +28,10 @@ export default function App() {
           <Route path="/nft-mint" element={<NFTMint />} />
           <Route path="/investor" element={<InvestorDashboard />} />
         </Routes>
+
+        {/* Blogs */}
+        <Blog />
       </div>
     </Router>
   );
 }
-
