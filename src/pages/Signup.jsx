@@ -1,38 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSignup = (e) => {
-    e.preventDefault();
-    // TODO: call backend API to register user
-    alert(`Signed up with ${email}`);
-  };
-
+  const navigate = useNavigate();
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded shadow">
+    <div className="p-4 max-w-md mx-auto">
       <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
-      <form onSubmit={handleSignup} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
+      <form className="flex flex-col gap-2" onSubmit={(e) => e.preventDefault()}>
+        <input type="text" placeholder="Full Name" className="p-2 border rounded" />
+        <input type="email" placeholder="Email" className="p-2 border rounded" />
+        <input type="password" placeholder="Password" className="p-2 border rounded" />
         <button
           type="submit"
-          className="w-full bg-yellow-600 text-white py-2 rounded"
+          className="bg-yellow-500 text-black px-4 py-2 rounded mt-2"
+          onClick={() => navigate("/signin")}
         >
           Sign Up
         </button>
@@ -40,4 +21,3 @@ export default function Signup() {
     </div>
   );
 }
-
