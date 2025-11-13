@@ -1,10 +1,12 @@
 import React from 'react';
+import Navbar from './shared/Navbar';
+import Home from './pages/Home';
 
 function App() {
   return (
-    <div>
-      <h1>GoldChain Demo</h1>
-      <p>Welcome to the GoldChain platform.</p>
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      <Navbar />
+      <Home />
     </div>
   );
 }
