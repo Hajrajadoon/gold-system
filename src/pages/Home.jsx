@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getGoldPrice } from '../utils/goldPrice';
+import { getgoldPrice } from '../utils/goldPrice';
 
 function Home() {
   const [price, setPrice] = useState(null);
 
   useEffect(() => {
-    getGoldPrice().then(setPrice);
+    getgoldPrice().then(setPrice);
     const interval = setInterval(() => getGoldPrice().then(setPrice), 60000);
     return () => clearInterval(interval);
   }, []);
