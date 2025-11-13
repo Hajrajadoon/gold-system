@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { getgoldPrice } from '../utils/goldPrice';
+import Navbar from '../shared/Navbar';
+import WalletConnectButton from '../shared/WalletConnectButton';
+import { getGoldPrice } from '../utils/goldPrice'; // utility function to fetch gold price
 
-function Home() {
-  const [price, setPrice] = useState(null);
+const Home = () => {
+  const [goldPrice, setGoldPrice] = useState(null);
 
   useEffect(() => {
-    getgoldPrice().then(setPrice);
-    const interval = setInterval(() => getGoldPrice().then(setPrice), 60000);
-    return () => clearInterval(interval);
+    async function fetchPrice() {
+      const price = await getGoldPrice(); // fetches real-time gold price
+      setGoldPrice(price);
+    }
+    fetchPrice();
   }, []);
 
   return (
-    <div className="p-8 text-center">
-      <h2 className="text-4xl font-bold text-yellow-600 mb-4">Revolutionizing Gold with Blockchain</h2>
-      <p className="text-lg mb-8">
-        Real-time Gold Price:&nbsp;
-        <span className="font-semibold text-yellow-700">
-          {price ? `$${price.toLocaleString()}/oz` : 'Loading...'}
-        </span>
-      </p>
-      {/* Keep your existing feature sections here */}
+    <div>
+      <Navbar />
+      <header className="p-4 text-center">
+        <h1 className="text-3xl font-bold">Welcome to GoldChain</h1>
+        <p className="mt-2 text-lg">Track real-time gold prices and manage your gold assets.</p>
+        {goldPrice && (
+          <p className="mt-4 text-xl font-semibold">Current Gold Price: ${goldPrice}</p>
+        )}
+        <WalletConnectButton />
+      </header>
     </div>
   );
-}
+};
 
 export default Home;
