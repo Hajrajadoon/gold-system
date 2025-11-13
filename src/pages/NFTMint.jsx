@@ -1,12 +1,32 @@
-import React from "react";
+import React from 'react';
+import Navbar from '../shared/Navbar';
+import WalletConnectButton from '../shared/WalletConnectButton';
+import { getGoldPrice } from '../utils/goldPrice';
 
-export default function NFTMint() {
+const NFTMint = () => {
+  const [goldPrice, setGoldPrice] = React.useState(null);
+
+  React.useEffect(() => {
+    async function fetchPrice() {
+      const price = await getGoldPrice();
+      setGoldPrice(price);
+    }
+    fetchPrice();
+  }, []);
+
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-2">NFT Minting</h2>
-      <button className="bg-yellow-500 text-black px-4 py-2 rounded mt-2">
-        Mint 1g Gold NFT
-      </button>
+    <div>
+      <Navbar />
+      <section className="p-4">
+        <h2 className="text-2xl font-bold mb-4">Mint Your Gold NFT</h2>
+        {goldPrice && <p className="mb-4">Current Gold Price: ${goldPrice}</p>}
+        <button className="px-4 py-2 bg-yellow-500 text-white rounded">
+          Mint NFT
+        </button>
+        <WalletConnectButton />
+      </section>
     </div>
   );
-}
+};
+
+export default NFTMint;
