@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function GoldPrice() {
+export default function goldPrice() {
   const [price, setPrice] = useState("Loading...");
 
   useEffect(() => {
-    const fetchGoldPrice = async () => {
+    const fetchgoldPrice = async () => {
       try {
         const response = await axios.get(
           "https://www.goldapi.io/api/XAU/USD",
@@ -19,7 +19,7 @@ export default function GoldPrice() {
         setPrice("Error fetching gold price");
       }
     };
-    fetchGoldPrice();
+    fetchgoldPrice();
     const interval = setInterval(fetchGoldPrice, 60000); // refresh every minute
     return () => clearInterval(interval);
   }, []);
