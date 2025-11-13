@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom fallback if Tailwind not installed */
 body {
-  @apply bg-gray-50 text-gray-800 font-sans;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background-color: #f9fafb;
 }
